@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/map">
+        <file>Model/GameLevels/LevelOne/map.txt</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>View/StartScreen/StartScreen.qml</file>
+        <file>View/ServerList/ServerList.qml</file>
+        <file>View/FormInput/FormInput.qml</file>
+        <file>View/GameScreen/GameScreen.qml</file>
+        <file>Main.qml</file>
+    </qresource>
+</RCC>
