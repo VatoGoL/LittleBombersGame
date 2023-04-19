@@ -5,29 +5,32 @@ TableModel::TableModel(QObject *parent): QAbstractTableModel(parent)
 
 }
 
-void TableModel::setTableHeader(QVector<QMap<int,QString>> &value){
+void TableModel::setTableHeader(QVector<QString> *value){
     if(value == nullptr){
         throw std::invalid_argument("In function \"setTableHeader\" argument \"value\" = nullptr");
     }
     if(__table_header != nullptr){
-        delete __table_header;
+        removeColumns(0, __table_header->count());
     }
-    *__table_header = value;
 
+    __table_header = value;
+
+    insertColumns(0,__table_header->count());
 }
-void TableModel::setTableData(QVector<QVector<QVariant>> &value){
+void TableModel::setTableData(QVector<QVector<QVariant>> *value){
     if(value == nullptr){
         throw std::invalid_argument("In function \"setTableData\" argument \"value\" = nullptr");
     }
     if(__table_data != nullptr){
-        delete __table_data;
+        removeColumns(0, __table_data->count());
     }
-    *__table_data = value;
+
+    __table_data = value;
     insertRows(0,__table_data->count());
 }
-QVector<QMap<int,QString>> TableModel::getTableHeader(){
+QVector<QString> TableModel::getTableHeader(){
     if(__table_header == nullptr){
-        return QVector<QMap<int,QString>>();
+        return QVector<QString>();
     }
     return *__table_header;
 }
@@ -37,22 +40,32 @@ QVector<QVector<QVariant>> TableModel::getTableData(){
     }
     return *__table_data;
 }
-
+QVariant TableModel::headerData(int section, Qt::Orientation orientation, int role) const{
+    if (orientation != Qt::Horizontal || role != Qt::DisplayRole || section >= columnCount()){
+        qDebug() << "Section ERROR " << section ;
+        return QVariant();
+    }
+    qDebug() <<"Section "<< __table_header->at(section) << " ColumnCount = " << columnCount();
+    return __table_header->at(section);
+}
 int TableModel::rowCount(const QModelIndex &parent) const{
     if(__table_data == nullptr){
         return 0;
     }
+
     return __table_data->count();
 }
 int TableModel::columnCount(const QModelIndex &parent) const {
     if(__table_header == nullptr){
         return 0;
     }
+
     return __table_header->count();
 }
 QVariant TableModel::data(const QModelIndex &index, int role) const{
     size_t row = index.row();
     size_t column = index.column();
+
     if(__table_data == nullptr){
         return QVariant();
     }
@@ -60,13 +73,29 @@ QVariant TableModel::data(const QModelIndex &index, int role) const{
         return QVariant();
     }
 
+    QVariant result;
 
-    return __table_data->at(row).at(column);
+    switch (column) {
+    case 0:
+        result = (*__table_data)[row][POS_S_NAME];
+        break;
+    case 1:
+        result = (*__table_data)[row][POS_S_IP];
+        break;
+    case 2:
+        result = (*__table_data)[row][POS_S_PORT];
+        break;
+    }
+
+    return result;
 }
 Qt::ItemFlags TableModel::flags(const QModelIndex &index) const{
     return Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
 }
-
+QHash<int, QByteArray> TableModel::roleNames() const
+{
+    return { {Qt::DisplayRole, "display"} };
+}
 bool TableModel::setData(const QModelIndex &index, const QVariant &value, int role){
     size_t row = index.row();
     size_t column = index.column();
@@ -74,14 +103,20 @@ bool TableModel::setData(const QModelIndex &index, const QVariant &value, int ro
     if (row >= rowCount() || column >= columnCount()){
         return false;
     }
-
+    emit dataChanged(index,index,{role});
     (*__table_data)[row][column] = value;
-    emit dataChanged(createIndex(row,column),createIndex(row,column));
 
     return true;
 }
 bool TableModel::insertRows(int row, int count, const QModelIndex &parent){
-    beginInsertRows(parent,row,row+count);
+
+    beginInsertRows(parent,row,row+count-1);
+
+    for(int i = 0 ; i < count; i++){
+        for(int j = 0; j < __table_data->at(i).count(); j++){
+            setData(createIndex(row + i,j),(*__table_data)[row + i][j]);
+        }
+    }
     endInsertRows();
 
     return true;
@@ -89,6 +124,9 @@ bool TableModel::insertRows(int row, int count, const QModelIndex &parent){
 bool TableModel::removeRows(int row, int count, const QModelIndex &parent){
 
     if(row + count > rowCount()){
+        return false;
+    }
+    if(__table_data == nullptr){
         return false;
     }
 
@@ -109,10 +147,13 @@ bool TableModel::removeColumns(int column, int count, const QModelIndex &parent)
     if(column + count > columnCount()){
         return false;
     }
+    if(__table_header == nullptr){
+        return false;
+    }
 
     beginRemoveColumns(parent,column,column+count);
     for(int i = 0; i < count; i++){
-        __table_data->removeAt(column);
+        __table_header->removeAt(column);
     }
     endRemoveColumns();
 

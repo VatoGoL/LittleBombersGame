@@ -12,13 +12,15 @@
 #define DB_NAME "ServerList"
 #define DB_PATH "DataBase/ServerList.db"
 
+
 class ServerListt: public QObject
 {
     Q_OBJECT
     QML_ELEMENT
 private:
     DataBaseManager *__db_manager = nullptr;
-
+    QVector<QString> *__header_data = nullptr;
+    QVector<QVector<QVariant>> *__data = nullptr;
 public:
     ServerListt(QObject *parent = nullptr);
     bool openConnect();
@@ -27,8 +29,8 @@ signals:
     void initTable();
 
 public slots:
-    QVector<QMap<int,QString>> parseHeaderData();
-    QVector<QVector<QVariant>> parseData();
+    QVector<QString>* parseHeaderData();
+    QVector<QVector<QVariant>>* parseData();
 
 };
 

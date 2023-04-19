@@ -1,5 +1,6 @@
-import QtQuick 2.15
+import QtQuick
 import QtQuick.Controls 2.15
+import QtQuick.Layouts
 import "../FormInput"
 import DataBaseModel 1.0
 import ViewServerList 1.0
@@ -11,7 +12,14 @@ Rectangle {
     property string color_service_box: "#0066A5"
     property string color_bottom_active: "#1EAFDD"
     property string color_bottom_inactive: "#1A93B9"
+    property string color_cell_not_even: "#109474"
+    property string color_cell_even: "#18C199"
+    property string color_current_cell_even: "#18ADC1"
+    property string color_current_cell_not_even: "#0F7F98"
+    property string color_background_table: "#10945C"
     property var width_cell: [16.5104, 14.6354, 10.7812, 16.927]
+
+    property int current_cell_y: -1
 
     id:wrapper
     width: parent.width
@@ -19,7 +27,7 @@ Rectangle {
     x: parent.x
     y: parent.y
     color: parent.color
-
+    onWindowChanged:{console.log("aaa");view_server_list.initTable();}
     DataBaseModel{
         id: db_model
 
@@ -28,10 +36,9 @@ Rectangle {
         id: view_server_list
         onInitTable: () =>
         {
-                         console.log("УРААА")
+            console.log("aaa")
             db_model.setTableHeader(view_server_list.parseHeaderData())
             db_model.setTableData(view_server_list.parseData())
-            console.log("УРААА")
         }
     }
 
@@ -377,41 +384,64 @@ Rectangle {
             Rectangle{
                 id: table_box
                 width: parent.width
-                height: parent.height - table_title.height
+                height: parent.height - table_title.height - tool_box.height
                 anchors.left: parent.left
                 anchors.top: table_title.bottom
-                //
+                color: color_background_table
+                ColumnLayout {
+                    anchors.fill: table_box
+                    spacing: 0
 
-                TableView{
-                    id: table
-                    //Layout.fillWidth: true
-                    //Layout.fillHeight: true
-                    clip: true
-                    boundsBehavior:Flickable.StopAtBounds
-                    columnWidthProvider: (column)=>{return width_cell[column]}
-                    model: db_model
-                    ScrollBar.vertical: ScrollBar {
-                        policy: ScrollBar.AsNeeded
-                        active: true
-                        onActiveChanged: {
-                            if (!active)
-                                active = true;
+                    TableView{
+                        id: table
+                        width: table_box.width
+                        height: table_box.height
+                        //Layout.fillWidth: true
+                        //Layout.fillHeight: true
+                        clip: true
+                        boundsBehavior:Flickable.StopAtBounds
+                        columnWidthProvider: (column)=>{return swidth * width_cell[column]}
+                        model: db_model
+                        selectionModel: ItemSelectionModel
+                        {
+                            model: db_model
                         }
-                    }
+                        ScrollBar.vertical: ScrollBar {
+                            policy: ScrollBar.AsNeeded
+                            active: true
+                            onActiveChanged: {
+                                if (!active)
+                                    active = true;
+                            }
+                        }
 
-                    delegate: Rectangle {
-                        //implicitHeight: 26
-                        border.color: "#bbb"
-                        border.width: 1
-                        Text {
-                            id: cellText
-                            text: display
-                            anchors.verticalCenter: parent.verticalCenter
-                            x: 4
+                        delegate: Rectangle {
+
+                            implicitHeight: sheight * 4.2407
+                            border.color: color_line
+                            border.width: swidth * 0.1041
+                            color: (row === current_cell_y) ? (row % 2 ? color_current_cell_even : color_current_cell_not_even) : (row % 2 ? color_cell_even: color_cell_not_even)
+
+                            Text {
+                                id: cellText
+                                text: display
+                                anchors.verticalCenter: parent.verticalCenter
+                                x: swidth * 0.2082
+                            }
+                            MouseArea{
+                                anchors.fill: parent
+                                onClicked: {
+                                    current_cell_y = row
+                                }
+                            }
+
                         }
+                        onFocusChanged: {
+                            current_cell_y = -1
+                        }
+
                     }
                 }
-
             }
         }
 
@@ -454,6 +484,9 @@ Rectangle {
                         }
                     }
                     onHoveredChanged: {hover = !hover}
+                    onClicked: {
+
+                    }
                 }
                 Button{
                     property bool hover: false
