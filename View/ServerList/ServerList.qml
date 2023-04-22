@@ -2,10 +2,14 @@ import QtQuick
 import QtQuick.Controls 2.15
 import QtQuick.Layouts
 import "../FormInput"
+import "DialogWindow"
 import DataBaseModel 1.0
 import ViewServerList 1.0
 
 Rectangle {
+    property int pos_s_name: 2
+    property int pos_s_ip: 0
+    property int pos_s_port: 1
     property int swidth: parent.width / 100
     property int sheight: parent.height / 100
     property string color_line: "#C4FBE4"
@@ -17,31 +21,100 @@ Rectangle {
     property string color_current_cell_even: "#18ADC1"
     property string color_current_cell_not_even: "#0F7F98"
     property string color_background_table: "#10945C"
+    property string mode_button: "navigation"
     property var width_cell: [16.5104, 14.6354, 10.7812, 16.927]
 
-    property int current_cell_y: -1
+    property int current_row: -1
 
+    signal setInfoInInfoBox(read_only: bool)
+    signal changeModeButton(mode: string)
+    onSetInfoInInfoBox: (read_only) =>
+    {
+        f_i_name.setText(view_server_list.getData(current_row,pos_s_name),read_only)
+        f_i_ip.setText(view_server_list.getData(current_row,pos_s_ip),read_only)
+        f_i_port.setText(view_server_list.getData(current_row,pos_s_port),read_only)
+    }
+    onChangeModeButton: (value)=>
+    {
+        if(value === "add_server")
+        {
+            current_row = -1;
+            setInfoInInfoBox(false);
+            but_back_text.text = "Отмена";
+            but_next_text.text = "Добавить";
+            mode_button = value;
+        }
+        else if(value === "navigation")
+        {
+            but_back_text.text = "Вернуться"
+            but_next_text.text = "Подключиться"
+            mode_button = value;
+        }
+    }
+    function nextButModeInsert()
+    {
+        if(view_server_list.insertRowData(f_i_name.getText(),f_i_ip.getText(),f_i_port.getText())){
+            db_model.insertRows(0,1);
+            changeModeButton("navigation");
+            setInfoInInfoBox(false);
+        }
+    }
+    function nextButModeNext()
+    {
+        if(f_i_ip.getText() === "" || f_i_port.getText() === ""
+            || f_i_login.getText() === "" || f_i_password.getText() === "")
+        {
+            dialog_window.open();
+            return;
+        }
+        view_server_list.closeConnection();
+        var component = Qt.createComponent("../GameScreen/GameScreen.qml")
+        if(component.status === Component.Ready){
+            var status = component.createObject(current_screen,{});
+            if(status === null){
+                console.log("Ошибка в создании окна: \"Игровой экран\"");
+            }
+            window.swapScreen("game_screen");
+        }
+    }
+    function backButModeCancel()
+    {
+        current_row = -1;
+        setInfoInInfoBox(false);
+        changeModeButton("navigation");
+    }
+    function backButModeBack()
+    {
+        view_server_list.closeConnection();
+        wrapper.destroy();
+        window.swapScreen("start_screen");
+    }
     id:wrapper
     width: parent.width
     height: parent.height
     x: parent.x
     y: parent.y
     color: parent.color
-    onWindowChanged:{console.log("aaa");view_server_list.initTable();}
+    onWindowChanged:{view_server_list.initTable();}
     DataBaseModel{
         id: db_model
-
     }
     ViewServerList{
         id: view_server_list
         onInitTable: () =>
         {
-            console.log("aaa")
             db_model.setTableHeader(view_server_list.parseHeaderData())
             db_model.setTableData(view_server_list.parseData())
         }
     }
-
+    DialogServerList{
+        id: dialog_window
+        anchors.centerIn: parent
+        width: swidth * 30
+        height: sheight * 40
+        onClickOk: {dialog_window.close();}
+    }
+    //Заголовок
     Rectangle{
         id: title_box
         anchors.horizontalCenter: parent.horizontalCenter
@@ -127,6 +200,7 @@ Rectangle {
                 topPadding: sheight * 1.574
                 spacing: sheight * 2.1296
                 FormInput{
+                    id: f_i_name
                     anchors.horizontalCenter: parent.horizontalCenter
 
                     width: swidth * 19.6354
@@ -141,6 +215,7 @@ Rectangle {
                     color_text_input: "#000000"
                 }
                 FormInput{
+                    id: f_i_ip
                     anchors.horizontalCenter: parent.horizontalCenter
 
                     width: swidth * 19.6354
@@ -157,6 +232,7 @@ Rectangle {
                     max_length: 15
                 }
                 FormInput{
+                    id: f_i_port
                     anchors.horizontalCenter: parent.horizontalCenter
 
                     width: swidth * 19.6354
@@ -173,6 +249,7 @@ Rectangle {
                     max_length: 5
                 }
                 FormInput{
+                    id: f_i_login
                     anchors.horizontalCenter: parent.horizontalCenter
 
                     width: swidth * 19.6354
@@ -187,6 +264,8 @@ Rectangle {
                     color_text_input: "#000000"
                 }
                 FormInput{
+                    id: f_i_password
+
                     anchors.horizontalCenter: parent.horizontalCenter
 
                     width: swidth * 19.6354
@@ -226,6 +305,7 @@ Rectangle {
                         color: parent.hover ? color_bottom_active : color_bottom_inactive
 
                         Text{
+                            id: but_back_text
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.horizontalCenter: parent.horizontalCenter
 
@@ -237,8 +317,12 @@ Rectangle {
                     }
                     onHoveredChanged: {hover = !hover}
                     onClicked: {
-                        wrapper.destroy()
-                        window.swapScreen("start_screen")
+                        if(mode_button === "navigation"){
+                            backButModeBack()
+                        }
+                        else if( mode_button === "add_server"){
+                            backButModeCancel()
+                        }
                     }
                 }
 
@@ -258,6 +342,7 @@ Rectangle {
                         color: parent.hover ? color_bottom_active : color_bottom_inactive
 
                         Text{
+                            id: but_next_text
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.horizontalCenter: parent.horizontalCenter
 
@@ -267,15 +352,14 @@ Rectangle {
                             color:"#FFFFFF"
                         }
                     }
-                    onHoveredChanged: {hover = !hover}
+
+                    onHoveredChanged: {hover = !hover;}
                     onClicked: {
-                        var component = Qt.createComponent("../GameScreen/GameScreen.qml")
-                        if(component.status === Component.Ready){
-                            var status = component.createObject(current_screen,{});
-                            if(status === null){
-                                console.log("Ошибка в создании окна: \"Игровой экран\"");
-                            }
-                            window.swapScreen("game_screen")
+                        if(mode_button === "navigation"){
+                            nextButModeNext();
+                        }
+                        else if( mode_button === "add_server"){
+                            nextButModeInsert();
                         }
                     }
                 }
@@ -284,6 +368,7 @@ Rectangle {
 
         }
 
+        //Таблица с серверами
         Rectangle{
             id: table_servers
             width: parent.width - info_box.width
@@ -396,8 +481,6 @@ Rectangle {
                         id: table
                         width: table_box.width
                         height: table_box.height
-                        //Layout.fillWidth: true
-                        //Layout.fillHeight: true
                         clip: true
                         boundsBehavior:Flickable.StopAtBounds
                         columnWidthProvider: (column)=>{return swidth * width_cell[column]}
@@ -420,7 +503,7 @@ Rectangle {
                             implicitHeight: sheight * 4.2407
                             border.color: color_line
                             border.width: swidth * 0.1041
-                            color: (row === current_cell_y) ? (row % 2 ? color_current_cell_even : color_current_cell_not_even) : (row % 2 ? color_cell_even: color_cell_not_even)
+                            color: (row === current_row) ? (row % 2 ? color_current_cell_even : color_current_cell_not_even) : (row % 2 ? color_cell_even: color_cell_not_even)
 
                             Text {
                                 id: cellText
@@ -431,13 +514,11 @@ Rectangle {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    current_cell_y = row
+                                    current_row = row
+                                    setInfoInInfoBox(true)
                                 }
                             }
 
-                        }
-                        onFocusChanged: {
-                            current_cell_y = -1
                         }
 
                     }
@@ -460,14 +541,17 @@ Rectangle {
                 leftPadding: swidth * 1.302
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.horizontalCenter: parent.horizontalCenter
-                spacing: swidth * 33.9583
+                spacing: swidth * 21.9791
 
                 Button{
+                    id: but_update_list
                     property bool hover: false
 
                     anchors.verticalCenter: parent.verticalCenter
+
                     width: swidth * 11.25
                     height: sheight * 4.6296
+
                     background: Rectangle{
                         width: parent.width
                         height: parent.height
@@ -477,39 +561,83 @@ Rectangle {
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.horizontalCenter: parent.horizontalCenter
 
-                            text: "Обновить список"
+                            text: "Обновить"
                             font.family: "Inter"
                             font.pointSize: swidth * 0.8
                             color:"#FFFFFF"
                         }
                     }
                     onHoveredChanged: {hover = !hover}
-                    onClicked: {
-
+                    onClicked:
+                    {
+                        current_row = -1
+                        setInfoInInfoBox(false)
                     }
                 }
-                Button{
-                    property bool hover: false
+                Row{
+                    height: parent.height
+                    spacing: swidth * 0.7291
+                    Button{
+                        property bool hover: false
 
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: swidth * 11.25
-                    height: sheight * 4.6296
-                    background: Rectangle{
-                        width: parent.width
-                        height: parent.height
-                        color: parent.hover ? color_bottom_active : color_bottom_inactive
+                        id: but_add_server
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: swidth * 11.25
+                        height: sheight * 4.6296
+                        background: Rectangle{
+                            width: parent.width
+                            height: parent.height
+                            color: parent.hover ? color_bottom_active : color_bottom_inactive
 
-                        Text{
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.horizontalCenter: parent.horizontalCenter
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.horizontalCenter: parent.horizontalCenter
 
-                            text: "Удалить сервер"
-                            font.family: "Inter"
-                            font.pointSize: swidth * 0.8
-                            color:"#FFFFFF"
+                                text: "Добавить сервер"
+                                font.family: "Inter"
+                                font.pointSize: swidth * 0.8
+                                color:"#FFFFFF"
+                            }
+                        }
+                        onClicked:
+                        {
+                            changeModeButton("add_server")
+                        }
+                        onHoveredChanged: {hover = !hover}
+                    }
+                    Button{
+                        property bool hover: false
+
+                        id: but_delete_server
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: swidth * 11.25
+                        height: sheight * 4.6296
+                        background: Rectangle{
+                            width: parent.width
+                            height: parent.height
+                            color: parent.hover ? color_bottom_active : color_bottom_inactive
+
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                                text: "Удалить сервер"
+                                font.family: "Inter"
+                                font.pointSize: swidth * 0.8
+                                color:"#FFFFFF"
+                            }
+                        }
+                        onHoveredChanged: {hover = !hover}
+                        onClicked: ()=>
+                        {
+                            if(view_server_list.deleteRowData(current_row)){
+                                db_model.removeRows(current_row,1);
+                                current_row = -1;
+                                setInfoInInfoBox(false);
+                                changeModeButton("navigation");
+                            }
                         }
                     }
-                    onHoveredChanged: {hover = !hover}
                 }
             }
         }

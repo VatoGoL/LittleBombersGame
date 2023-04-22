@@ -21,6 +21,7 @@ public:
     QString getDBName();
 
     bool openConnect(bool forward_only = false);
+    bool closeConnection();
     bool isOpenConnection();
     QSqlQuery runQuery(QString value);
 

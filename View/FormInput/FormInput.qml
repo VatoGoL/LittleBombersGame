@@ -10,6 +10,17 @@ Rectangle {
     property string color_text_input: ""
 
     property int max_length: 18
+    signal setText(value: string, read_only: bool)
+
+    onSetText: (value, read_only)=>
+    {
+        t_input.text = value;
+        t_input.readOnly = read_only;
+    }
+    function getText (): string
+    {
+        return t_input.text;
+    }
 
     Rectangle{
         id: title_box
@@ -38,6 +49,7 @@ Rectangle {
         anchors.left: parent.left
         color: color_text_input_back
         TextInput{
+            id: t_input
             width: parent.width
             height: parent.height
             color: color_text_input

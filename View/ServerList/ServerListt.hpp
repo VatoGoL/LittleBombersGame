@@ -32,5 +32,12 @@ public slots:
     QVector<QString>* parseHeaderData();
     QVector<QVector<QVariant>>* parseData();
 
+    QString getHeaderData(int column);
+    QString getData(int row,int column);
+
+    bool insertRowData(QString name, QString ip, QString port);
+    bool deleteRowData(int row);
+
+    bool closeConnection();
 };
 

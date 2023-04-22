@@ -7,6 +7,7 @@
 #define POS_S_NAME 2
 #define POS_S_IP 0
 #define POS_S_PORT 1
+#define POS_S_COUNT_PLAYER 3
 
 class TableModel: public QAbstractTableModel
 {

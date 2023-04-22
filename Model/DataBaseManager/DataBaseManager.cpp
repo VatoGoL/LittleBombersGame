@@ -45,6 +45,12 @@ bool DataBaseManager::isOpenConnection(){
 
     return __db_connection->isOpen();
 }
+bool DataBaseManager::closeConnection(){
+    if(__db_connection == nullptr){
+        return false;
+    }
+    __db_connection->close();
+}
 
 QSqlQuery DataBaseManager::runQuery(QString value){
     if(__query->exec(value)){

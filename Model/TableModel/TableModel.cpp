@@ -85,6 +85,9 @@ QVariant TableModel::data(const QModelIndex &index, int role) const{
     case 2:
         result = (*__table_data)[row][POS_S_PORT];
         break;
+    case 3:
+        result = (*__table_data)[row][POS_S_COUNT_PLAYER];
+        break;
     }
 
     return result;

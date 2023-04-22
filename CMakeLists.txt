@@ -22,6 +22,7 @@ qt_add_qml_module(appLittleBombers
     VERSION 1.0
     QML_FILES Main.qml
               View/ServerList/ServerList.qml
+              View/ServerList/DialogWindow/DialogServerList.qml
               View/StartScreen/StartScreen.qml
               View/FormInput/FormInput.qml
               View/GameScreen/GameScreen.qml

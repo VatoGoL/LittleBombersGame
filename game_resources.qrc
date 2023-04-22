@@ -8,5 +8,6 @@
         <file>View/FormInput/FormInput.qml</file>
         <file>View/GameScreen/GameScreen.qml</file>
         <file>Main.qml</file>
+        <file>View/ServerList/DialogWindow/DialogServerList.qml</file>
     </qresource>
 </RCC>
