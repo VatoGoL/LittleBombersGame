@@ -1,0 +1,2 @@
+add_subdirectory(DataBaseManager)
+add_subdirectory(NetWorker)
