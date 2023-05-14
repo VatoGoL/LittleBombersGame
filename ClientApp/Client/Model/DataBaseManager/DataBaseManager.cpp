@@ -1,5 +1,5 @@
 #include "DataBaseManager.hpp"
-
+#include "unistd.h"
 DataBaseManager::DataBaseManager(QString data_base_name){
     __db_name = data_base_name;
 }
@@ -42,12 +42,11 @@ bool DataBaseManager::isOpenConnection(){
     if(__db_connection == nullptr){
         return false;
     }
-
     return __db_connection->isOpen();
 }
 bool DataBaseManager::closeConnection(){
     if(__db_connection == nullptr){
-        return false;
+        return true;
     }
     __db_connection->close();
 }

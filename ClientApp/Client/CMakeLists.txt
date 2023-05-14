@@ -4,12 +4,12 @@ project(LittleBombers VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_PREFIX_PATH "/home/QT/6.4.3/gcc_64/lib/cmake")
+find_package(Qt6 REQUIRED COMPONENTS Quick)
 
-find_package(Qt6 6.4 REQUIRED COMPONENTS Quick)
-
-add_subdirectory(View/ServerList)
-add_subdirectory(Model/DataBaseManager)
-add_subdirectory(Model/TableModel)
+add_subdirectory(View)
+add_subdirectory(Model)
+add_subdirectory(Controller)
 
 qt_standard_project_setup()
 
@@ -25,27 +25,10 @@ qt_add_qml_module(appLittleBombers
               View/ServerList/DialogWindow/DialogServerList.qml
               View/StartScreen/StartScreen.qml
               View/FormInput/FormInput.qml
-              View/GameScreen/GameScreen.qml
-    SOURCES Model/Client/Client.cpp
-            Model/Client/Client.hpp
-            Model/Engine/Object.hpp
-            Model/GameLevels/ObjectLevel.cpp
-            Model/GameLevels/ObjectLevel.hpp
-            Model/GameLevels/LevelOne/LevelOne.cpp
-            Model/GameLevels/LevelOne/LevelOne.hpp
-            Model/GameObject/Being/ObjectBeing.cpp
-            Model/GameObject/Being/ObjectBeing.hpp
-            Model/GameObject/Being/Enemy/Enemy.cpp
-            Model/GameObject/Being/Enemy/Enemy.hpp
-            Model/GameObject/Being/Player/Player.cpp
-            Model/GameObject/Being/Player/Player.hpp
-            Model/GameObject/Props/ObjectProp.cpp
-            Model/GameObject/Props/ObjectProp.hpp
-            Model/GameObject/Props/Wall/Wall.cpp
-            Model/GameObject/Props/Wall/Wall.hpp
-            Model/Server/Server.cpp
-            Model/Server/Server.hpp
-            Model/TableModel/TableModel.cpp
+              View/GameScreen/GameScreenHarvard.qml
+              #View/GameScreen/GameScreenLB.qml
+
+    SOURCES Model/TableModel/TableModel.cpp
             Model/TableModel/TableModel.hpp
 
             game_resources.qrc
@@ -68,6 +51,18 @@ target_link_libraries(appLittleBombers
 target_link_libraries(appLittleBombers PRIVATE ServerListt)
 target_link_libraries(appLittleBombers PRIVATE DataBaseManager)
 target_link_libraries(appLittleBombers PRIVATE TableModel)
+target_link_libraries(appLittleBombers PRIVATE ClientManager)
+target_link_libraries(appLittleBombers PRIVATE ClientWrapper)
+target_link_libraries(appLittleBombers PRIVATE GameHarvard)
+
+target_link_libraries(ClientManager PUBLIC NetWorker)
+target_link_libraries(ClientManager PUBLIC JsonMessages)
+
+target_link_libraries(ServerListt PUBLIC NetWorker)
+#target_link_libraries(ServerListt PUBLIC ClientWrapper)
+
+
+target_link_libraries(ClientWrapper PUBLIC ClientManager)
 
 install(TARGETS appLittleBombers
     BUNDLE DESTINATION .

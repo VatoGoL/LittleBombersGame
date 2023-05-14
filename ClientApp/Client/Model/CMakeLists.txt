@@ -1,3 +1,4 @@
 add_subdirectory(DataBaseManager)
-add_subdirectory(NetWorker)
+add_subdirectory(TableModel)
 add_subdirectory(JsonMessages)
+add_subdirectory(NetWorker)

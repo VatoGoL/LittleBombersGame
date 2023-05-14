@@ -24,6 +24,7 @@ bool DataBaseManager::openConnect(bool forward_only){
     if(__db_name == ""){
         return false;
     }
+    closeConnection();
 
     __db_connection = new QSqlDatabase(QSqlDatabase::addDatabase(__db_type));
     __db_connection->setDatabaseName(__db_name);
@@ -49,7 +50,10 @@ bool DataBaseManager::closeConnection(){
     if(__db_connection == nullptr){
         return false;
     }
-    __db_connection->close();
+    if(__db_connection->isOpen()){
+        __db_connection->close();
+    }
+    return true;
 }
 
 QSqlQuery DataBaseManager::runQuery(QString value){

@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
     ServerApp *application = new ServerApp();
     //NetWorker *a = new NetWorker;
     //a->execute();
+    application->init();
     application->execute();
     //stdin
     //return a.exec();

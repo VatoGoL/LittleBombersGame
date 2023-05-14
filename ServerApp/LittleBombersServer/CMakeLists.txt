@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 
 project(LittleBombersServer LANGUAGES CXX)
 
+set(CMAKE_CXX_COMPILER g++-12)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -36,8 +37,16 @@ target_link_libraries(LittleBombersServer ServerApp)
 
 target_link_libraries(ServerApp PUBLIC ServerRenderer)
 target_link_libraries(ServerApp PUBLIC ServerManager)
+target_link_libraries(ServerApp PUBLIC Controller_DB_Manager)
+target_link_libraries(ServerApp PUBLIC JsonMessages)
 
 target_link_libraries(ServerManager PUBLIC NetWorker)
+target_link_libraries(ServerManager PUBLIC Controller_DB_Manager)
+
+target_link_libraries(ServerRenderer PUBLIC ServerManager)
+target_link_libraries(ServerRenderer PUBLIC JsonMessages)
+
+target_link_libraries(Controller_DB_Manager PUBLIC DataBaseManager)
 
 
 

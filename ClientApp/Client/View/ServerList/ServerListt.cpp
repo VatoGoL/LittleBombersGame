@@ -149,3 +149,57 @@ bool ServerListt::closeConnection(){
     return __db_manager->closeConnection();
 }
 
+bool ServerListt::loginServer(QString ip, QString port, QString login, QString password){
+
+    if(!__client_manager->connectToServer(ip,port)){
+        __error_message = "Сервер не доступен";
+        return false;
+    }
+
+    __client_manager->loginOnServer(login,password);
+
+    int i = 0;
+    __client_manager->setOperationMode(NetWorker::OPERATION_READ);
+    QJsonDocument result;
+    for(;i < 5;){
+        __client_manager->stepExecute();
+        result = QJsonDocument::fromJson(__client_manager->getMessageBuffer());
+
+        QJsonValue target_value = result["target"];
+        if(!target_value.isUndefined()){
+            if(target_value.toString() == "connection_confirm"){
+                QJsonValue status_value = result["status"];
+                if(status_value.toString() == "successful"){
+                    qDebug() << status_value.toString();
+                    return true;
+                }
+                else{
+                    qDebug() << "connection failed";
+                    __error_message = "Неверный пароль";
+                    __client_manager->closeConnection();
+                    return false;
+                }
+            }
+        }
+        else{
+            qDebug() << "is undefined";
+        }
+
+        qDebug() << "Ждёмс" << __client_manager->getMessageBuffer();
+        i++;
+        sleep(1);
+
+    }
+    __client_manager->setOperationMode(NetWorker::OPERATION_NONE);
+    __error_message = "Привышено максимально время ожидания \nответа сервера";
+    return false;
+}
+
+QString ServerListt::getErrorMessage(){
+    return __error_message;
+}
+
+void ServerListt::setNetManager(ClientManager *client_manager){
+    __client_manager = client_manager;
+}
+

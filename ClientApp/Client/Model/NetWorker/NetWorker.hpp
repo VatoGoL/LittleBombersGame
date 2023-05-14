@@ -11,7 +11,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <QByteArray>
-
+#include <QDebug>
 
 
 class NetWorker
@@ -36,8 +36,6 @@ public:
 
     void setWorkingMode(OPERATION_MODE mode);
     void getWorkingMode(OPERATION_MODE *mode);
-    void sendMessage();
-    void reciveMessage();
 
     void closeConnection();
     void isAliveConnection(bool *status_connection);
@@ -67,6 +65,7 @@ private:
 
     bool __status_connection;
     bool __buffer_status_connection;
+
     int RECIVE_BUFFER_SIZE = (1 << 10);
 
     __net_worket_info_t __thread_arguments;
@@ -74,7 +73,8 @@ private:
 
     //Помещается в поток
     static void* __execute(void *value);
-
+    void __sendMessage();
+    void __reciveMessage();
 };
 
 

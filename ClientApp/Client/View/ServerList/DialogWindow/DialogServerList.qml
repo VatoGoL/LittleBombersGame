@@ -16,6 +16,14 @@ Dialog {
     property string color_footer_inactive_button: "#1A93B9";
     property string color_footer_active_button: "#1EAFDD";
     property int footer_text_size: width * 0.041;
+    property string content_text: "<p>Следующие поля <br/>должны быть заполнены: <br/>
+                                <ul>
+                                    <li>IP</li>
+                                    <li>Порт</li>
+                                    <li>Логин</li>
+                                    <li>Пароль</li>
+                                </ul>
+                            </p>"
 
     signal clickOk()
 
@@ -49,14 +57,7 @@ Dialog {
 
             font.family: "Inter"
             font.pointSize: content_text_size
-            text: "<p>Следующие поля <br/>должны быть заполнены: <br/>
-                        <ul>
-                            <li>IP</li>
-                            <li>Порт</li>
-                            <li>Логин</li>
-                            <li>Пароль</li>
-                        </ul>
-                    </p>"
+            text: content_text
         }
     }
     footer: Rectangle{

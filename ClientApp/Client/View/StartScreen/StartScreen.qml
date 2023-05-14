@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 Rectangle {
+
     property int swidth: parent.width / 100
     property int sheight: parent.height / 100
     color: parent.color
@@ -56,16 +57,8 @@ Rectangle {
             }
             onHoveredChanged: {hover = !hover}
             onClicked: {
-
-                var component = Qt.createComponent("../ServerList/ServerList.qml")
-                if(component.status === Component.Ready){
-                    var status = component.createObject(current_screen,{});
-                    if(status === null){
-                        console.log("Ошибка в создании окна: \"Список серверов\"");
-                    }
-                    window.swapScreen("server_list")
-                }
-
+                window.swapScreen("server_list", "");
+                //window.swapScreen("game_screen");
             }
         }
         Button{

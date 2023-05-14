@@ -6,8 +6,9 @@
         <file>View/StartScreen/StartScreen.qml</file>
         <file>View/ServerList/ServerList.qml</file>
         <file>View/FormInput/FormInput.qml</file>
-        <file>View/GameScreen/GameScreen.qml</file>
+        <file>View/GameScreen/GameScreenLB.qml</file>
         <file>Main.qml</file>
         <file>View/ServerList/DialogWindow/DialogServerList.qml</file>
+        <file>View/GameScreen/GameScreenHarvard.qml</file>
     </qresource>
 </RCC>

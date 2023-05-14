@@ -4,6 +4,7 @@
 
 #include "../../Model/DataBaseManager/DataBaseManager.hpp"
 #include "../../Model/TableModel/TableModel.hpp"
+#include "../../Controller/ClientManager/ClientManager.hpp"
 
 #define DEF_SIZE_NAME 16.5104
 #define DEF_SIZE_IP 14.6354
@@ -21,6 +22,9 @@ private:
     DataBaseManager *__db_manager = nullptr;
     QVector<QString> *__header_data = nullptr;
     QVector<QVector<QVariant>> *__data = nullptr;
+    ClientManager *__client_manager;
+    QString __error_message;
+
 public:
     ServerListt(QObject *parent = nullptr);
     bool openConnect();
@@ -37,7 +41,10 @@ public slots:
 
     bool insertRowData(QString name, QString ip, QString port);
     bool deleteRowData(int row);
-
+    void setNetManager(ClientManager *client_manager);
     bool closeConnection();
+    QString getErrorMessage();
+
+    bool loginServer(QString ip, QString port, QString login, QString password);
 };
 

@@ -1,0 +1,3 @@
+add_subdirectory(ServerList)
+add_subdirectory(ClientWrapper)
+add_subdirectory(GameScreen)

@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+//import NetManager 1.0
 
 Rectangle {
     id: wrapper
@@ -9,6 +10,8 @@ Rectangle {
     property string color_vertical_line: "#C4FBE4"
     property string background_game_area: "#D9D9D9"
     property string statistic_text_color: "#FFFFFF"
+    //property NetManager net_manager: window.net_manager
+
     width: parent.width
     height: parent.height
     x: parent.x

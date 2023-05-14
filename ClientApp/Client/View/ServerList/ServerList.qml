@@ -5,8 +5,10 @@ import "../FormInput"
 import "DialogWindow"
 import DataBaseModel 1.0
 import ViewServerList 1.0
+import ClientWrapper
 
 Rectangle {
+    id:wrapper
     property int pos_s_name: 2
     property int pos_s_ip: 0
     property int pos_s_port: 1
@@ -25,6 +27,7 @@ Rectangle {
     property var width_cell: [16.5104, 14.6354, 10.7812, 16.927]
 
     property int current_row: -1
+    //property ClientWrapper this_client_wrapper: client_wrapper
 
     signal setInfoInInfoBox(read_only: bool)
     signal changeModeButton(mode: string)
@@ -34,6 +37,8 @@ Rectangle {
         f_i_ip.setText(view_server_list.getData(current_row,pos_s_ip),read_only)
         f_i_port.setText(view_server_list.getData(current_row,pos_s_port),read_only)
     }
+
+
     onChangeModeButton: (value)=>
     {
         if(value === "add_server")
@@ -67,15 +72,21 @@ Rectangle {
             dialog_window.open();
             return;
         }
-        view_server_list.closeConnection();
-        var component = Qt.createComponent("../GameScreen/GameScreen.qml")
-        if(component.status === Component.Ready){
-            var status = component.createObject(current_screen,{});
-            if(status === null){
-                console.log("Ошибка в создании окна: \"Игровой экран\"");
-            }
-            window.swapScreen("game_screen");
+        if(view_server_list.loginServer(f_i_ip.getText(),f_i_port.getText(),f_i_login.getText(),f_i_password.getText()) === true){
+
+            view_server_list.closeConnection();
+
+            wrapper.destroy();
+            window.swapScreen("game_screen", f_i_login.getText());
+
         }
+        else{
+            dialog_window.content_text = view_server_list.getErrorMessage();
+            dialog_window.open();
+        }
+
+
+
     }
     function backButModeCancel()
     {
@@ -87,20 +98,26 @@ Rectangle {
     {
         view_server_list.closeConnection();
         wrapper.destroy();
-        window.swapScreen("start_screen");
+        window.swapScreen("start_screen","");
     }
-    id:wrapper
+
     width: parent.width
     height: parent.height
     x: parent.x
     y: parent.y
     color: parent.color
-    onWindowChanged:{view_server_list.initTable();}
+
+    onWindowChanged:{
+        view_server_list.initTable();
+        view_server_list.setNetManager(client_wrapper.getClientManager());
+    }
+
     DataBaseModel{
         id: db_model
     }
     ViewServerList{
         id: view_server_list
+
         onInitTable: () =>
         {
             db_model.setTableHeader(view_server_list.parseHeaderData())
