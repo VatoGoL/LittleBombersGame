@@ -101,4 +101,5 @@ public:
     void init(QVector<struct client_t> *players, QString ip, QString port, QString *time, STATUS_GAME *status_game, int width = 80);
     void draw(QByteArray command);
     QJsonDocument getCommand();
+    void clearBuffer();
 };

@@ -48,6 +48,7 @@ target_link_libraries(ServerRenderer PUBLIC JsonMessages)
 
 target_link_libraries(Controller_DB_Manager PUBLIC DataBaseManager)
 
+target_link_libraries(JsonMessages PUBLIC Controller_DB_Manager)
 
 
 install(TARGETS LittleBombersServer

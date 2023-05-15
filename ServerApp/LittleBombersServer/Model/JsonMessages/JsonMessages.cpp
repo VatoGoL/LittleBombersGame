@@ -38,6 +38,13 @@ QJsonDocument JsonMessages::kickPlayer(QString player_login){
     result["login"] = player_login;
     return QJsonDocument(result);
 }
+QJsonDocument JsonMessages::changeAccessMode(QString login, Controller_DB_Manager::ACCESS_LEVEL level){
+    QJsonObject result;
+    result["target"] = "change_access_level";
+    result["login"] = login;
+    result["access_level"] = (int)level;
+    return QJsonDocument(result);
+}
 QJsonDocument JsonMessages::synchronizationReply(int status_game, QVector<QString> player_logins,
                                                  QVector<QString> player_numbers, QString last_winner,
                                                  QString time)

@@ -152,6 +152,18 @@ void ServerApp::__commandProcessing(){
             system("clear");
             this->destroy();
         }
+        else if(target_value == "change_access_level"){
+            QJsonValue login = __message_from_view["login"];
+            QJsonValue level = __message_from_view["access_level"];
+            for(int i = 0; i < __clients->size(); i++){
+                if(__clients->at(i).client_login == login.toString()){
+                    __s_renderer->addLog("Player '"+login.toString() +"': access level changet");
+                    (*__clients)[i].access_level = (Controller_DB_Manager::ACCESS_LEVEL)level.toInt();
+                    __controller_db_manager->changeAccessLevel(login,(*__clients)[i].access_level);
+                    __s_renderer->clearBuffer();
+                }
+            }
+        }
         else if(target_value == "kick_player"){
             QJsonValue login = __message_from_view["login"];
             for(int i = 0; i < __clients->size(); i++){
@@ -162,6 +174,7 @@ void ServerApp::__commandProcessing(){
                     (*__clients)[i].message_buffer = JsonMessages::logout().toJson(QJsonDocument::Compact);
                     (*__clients)[i].mode = NetWorker::OPERATION_WRITE;
                     (*__clients)[i].access_level = Controller_DB_Manager::ACCESS_ERROR;
+                    __s_renderer->clearBuffer();
                 }
             }
         }

@@ -97,11 +97,33 @@ void ServerRenderer::__drawScreen(){
         __setCarriagePos(__screen_box.x +3, __screen_box.y+1);
         printf("Выберите игрока");
 
-        for(int i = 0; i < __players->size();i++){
+        for(int i = 0; i < __players->size() && i < 2;i++){
             __setCarriagePos(__screen_box.x +3, __screen_box.y+3 + i*2);
             printf("%d : %s ", i+1, __players->at(i).client_login.toStdString().c_str());
+            switch(__players->at(i).access_level){
+                case Controller_DB_Manager::ACCESS_STANDART_PLAYER:
+                    printf("(S)");
+                    break;
+
+                case Controller_DB_Manager::ACCESS_MODERATION_PLAYER:
+                    printf("(M)");
+                    break;
+            }
         }
-        __setCarriagePos(__screen_box.x +3, __screen_box.y+3 +__players->size()*2);
+        for(int i = 2,j = 0; i < __players->size(); i++, j++){
+            __setCarriagePos(__screen_box.x + __screen_box.width/2 + 3, __screen_box.y+3 + j*2);
+            printf("%d : %s ", i+1, __players->at(i).client_login.toStdString().c_str());
+            switch(__players->at(i).access_level){
+                case Controller_DB_Manager::ACCESS_STANDART_PLAYER:
+                        printf("(S)");
+                        break;
+
+                case Controller_DB_Manager::ACCESS_MODERATION_PLAYER:
+                    printf("(M)");
+                    break;
+            }
+        }
+        __setCarriagePos(__screen_box.x +3, __screen_box.y+3 + 2*2);
         printf("5: Вернуться");
         //__drawPlayerList();
     }
@@ -109,11 +131,34 @@ void ServerRenderer::__drawScreen(){
         __setCarriagePos(__screen_box.x +3, __screen_box.y+1);
         printf("Выберите игрока");
 
-        for(int i = 0; i < __players->size();i++){
+        for(int i = 0; i < __players->size() && i < 2;i++){
             __setCarriagePos(__screen_box.x +3, __screen_box.y+3 + i*2);
             printf("%d : %s ", i+1, __players->at(i).client_login.toStdString().c_str());
+            switch(__players->at(i).access_level){
+                case Controller_DB_Manager::ACCESS_STANDART_PLAYER:
+                    printf("(S)");
+                    break;
+
+                case Controller_DB_Manager::ACCESS_MODERATION_PLAYER:
+                    printf("(M)");
+                    break;
+            }
         }
-        __setCarriagePos(__screen_box.x +3, __screen_box.y+3 +__players->size()*2);
+        for(int i = 2, j = 0; i < __players->size(); i++, j++){
+            __setCarriagePos(__screen_box.x + __screen_box.width/2 + 3, __screen_box.y+3 + j * 2);
+            printf("%d : %s ", i+1, __players->at(i).client_login.toStdString().c_str());
+            switch(__players->at(i).access_level){
+                case Controller_DB_Manager::ACCESS_STANDART_PLAYER:
+                        printf("(S)");
+                        break;
+
+                case Controller_DB_Manager::ACCESS_MODERATION_PLAYER:
+                    printf("(M)");
+                    break;
+            }
+        }
+
+        __setCarriagePos(__screen_box.x +3, __screen_box.y+3 + 2*2);
         printf("5: Вернуться");
         //__drawPlayerList();
     }
@@ -151,6 +196,14 @@ void ServerRenderer::__drawPlayerList(){
     for(int i = 0; i < __players->size(); i++){
         __setCarriagePos(__screen_box.x + __screen_box.width/2+3,__screen_box.y + 1 + i*2);
         printf("- : %s", __players->at(i).client_login.toStdString().c_str());
+        switch(__players->at(i).access_level){
+            case Controller_DB_Manager::ACCESS_STANDART_PLAYER:
+                printf("(S)");
+                break;
+            case Controller_DB_Manager::ACCESS_MODERATION_PLAYER:
+                printf("(M)");
+                break;
+        }
     }
 }
 
@@ -220,6 +273,18 @@ void ServerRenderer::__execCommand(QByteArray command){
             //сделать модератором игрока ...
             if(command == __FIELD_1 || command == __FIELD_2 || command == __FIELD_3 || command == __FIELD_4){
                 //__select_field_mode = false;
+                if(command.toInt()-1 < __players->size()){
+                    switch(__players->at(command.toInt()-1).access_level){
+                    case Controller_DB_Manager::ACCESS_STANDART_PLAYER:
+                        (*__players)[command.toInt()-1].access_level = Controller_DB_Manager::ACCESS_MODERATION_PLAYER;
+                        break;
+                    case Controller_DB_Manager::ACCESS_MODERATION_PLAYER:
+                        (*__players)[command.toInt()-1].access_level = Controller_DB_Manager::ACCESS_STANDART_PLAYER;
+                        break;
+                    }
+                    __command_buffer = JsonMessages::changeAccessMode(__players->at(command.toInt()-1).client_login,
+                                                                        __players->at(command.toInt()-1).access_level);
+                }
             }
 
         }
@@ -316,4 +381,7 @@ void ServerRenderer::__clearScreen(){
 }
 QJsonDocument ServerRenderer::getCommand(){
     return __command_buffer;
+}
+void ServerRenderer::clearBuffer(){
+    __command_buffer = QJsonDocument();
 }
