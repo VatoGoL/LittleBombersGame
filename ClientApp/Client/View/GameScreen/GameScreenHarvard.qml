@@ -211,6 +211,7 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
             y: sheight * 1.574
             color: parent.color
+            visible: false
 
             Rectangle{
                 id: enemy_1_card
@@ -246,6 +247,7 @@ Rectangle {
             x: swidth * 4.5833
             y: sheight * 30.0925
             color: parent.color
+            visible: false
 
             Rectangle{
                 id: enemy_2_card
@@ -281,6 +283,7 @@ Rectangle {
             x: swidth * 83.75
             y: sheight * 30.0925
             color: parent.color
+            visible: false
 
             Rectangle{
                 id: enemy_3_card
@@ -317,7 +320,7 @@ Rectangle {
             font.pointSize: swidth * 2
             color: "#000000"
 
-            text: "Победитель Иван"
+            text: "Подключение"
         }
 
         Rectangle{

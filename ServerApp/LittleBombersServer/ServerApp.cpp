@@ -37,9 +37,10 @@ void* ServerApp::__keyReader(void *value){
             exit = true;
         }
         *object->key_buffer = keys;
+        *(object->skip_step) = true;
         pthread_mutex_unlock(object->mutex);
 
-        usleep(100);
+
 
     }
     pthread_exit(nullptr);
@@ -83,6 +84,7 @@ void ServerApp::execute()
             if(__game_status == ACTIVE_STAGE || __game_status == RESULTS_STAGE){
                 __s_current_time--;
                 __timer = "00:" + QString().setNum(__s_current_time);
+                //__s_renderer->draw("");
             }
 
             __last_time = __temp_time;
@@ -119,7 +121,7 @@ void ServerApp::__commandProcessing(){
     QString target_value;
 
     for(int i = 0; i < __clients->size(); i++){
-        //printf("%d ", __clients->size());
+
         document = QJsonDocument::fromJson(__clients->at(i).message_buffer);
         target = document["target"];
 
@@ -154,6 +156,9 @@ void ServerApp::__commandProcessing(){
             QJsonValue login = __message_from_view["login"];
             for(int i = 0; i < __clients->size(); i++){
                 if(__clients->at(i).client_login == login.toString()){
+                    __s_renderer->addLog("Player '"+login.toString() +"' kick from the server");
+                    //__s_renderer->draw("");
+
                     (*__clients)[i].message_buffer = JsonMessages::logout().toJson(QJsonDocument::Compact);
                     (*__clients)[i].mode = NetWorker::OPERATION_WRITE;
                     (*__clients)[i].access_level = Controller_DB_Manager::ACCESS_ERROR;
@@ -204,18 +209,20 @@ void ServerApp::__autorization(struct client_t *client, QJsonDocument document){
             client->access_level = result;
         break;
         default:
-            __s_renderer->addLog("Player '"+login.toString() +"' join the game");
             client->client_login = login.toString();
             client->message_buffer = JsonMessages::authSuccessful().toJson(QJsonDocument::Compact);
             client->mode = NetWorker::OPERATION_WRITE;
 
             client->access_level = result;
+            __s_renderer->addLog("Player '"+login.toString() +"' join the game");
+            //__s_renderer->draw("");
         break;
     }
 
 
 }
 void ServerApp::__logoutClient(struct client_t *client){
+    __s_renderer->addLog("Player '"+client->client_login +"' leave the game");
     client->client_worker->closeConnection();
 }
 void ServerApp::__checkCountPlayers(struct client_t *client){
@@ -231,10 +238,12 @@ void ServerApp::__gameStep(){
             __timer = "00:00";
         }
         else if(__game_status == RESULTS_STAGE){
+            __s_renderer->addLog("Waiting player stage");
             __game_status = WAITING_PLAYER;
             __s_current_time = __START_TIMER;
             __timer = "00:00";
             __last_winner = "";
+            //__s_renderer->draw("");
         }
     }
 
@@ -249,6 +258,9 @@ void ServerApp::__gameStep(){
             }
             if(temp_count == __clients->size()){
                 __game_status = ACTIVE_STAGE;
+                __s_renderer->addLog("Start 'Active' stage");
+                //__s_renderer->draw("");
+
             }
         }
     }
@@ -260,6 +272,8 @@ void ServerApp::__gameStep(){
                 }
             }
             __s_current_time = 0;
+            __s_renderer->addLog("Start 'Restult' stage");
+            //__s_renderer->draw("");
         }
     }
     else if(__game_status == RESULTS_STAGE){

@@ -6,6 +6,7 @@
 #include "ServerManager.hpp"
 #include "JsonMessages.hpp"
 #include <wchar.h>
+#include <fstream>
 
 #define NO_CHANGE_SCREEN "no_change_screen";
 enum STATUS_GAME{
@@ -14,6 +15,7 @@ enum STATUS_GAME{
     ACTIVE_STAGE,
     RESULTS_STAGE
 };
+#define LOG_FILE "log.txt"
 
 struct size_view_box{
     int x;
@@ -73,6 +75,7 @@ private:
     struct size_view_box __log_box;
 
     QJsonDocument __command_buffer;
+    ofstream __fout;
 
     void __drawTitle();
     void __drawScreen();

@@ -41,6 +41,7 @@ void ServerRenderer::draw(QByteArray command){
     __drawScreen();
     __drawLog();
     __drawInputField();
+    //usleep(100);
 }
 
 void ServerRenderer::__drawTitle(){
@@ -247,6 +248,25 @@ void ServerRenderer::addLog(QString log){
         __log_history.pop_front();
     }
     __log_history.push_back(log);
+    __fout.open(LOG_FILE,ofstream::app);
+    if(__fout.is_open()){
+        switch(*__status_game){
+        case WAITING_PLAYER:
+            __fout << "STAGE: WAITING PLAYER: ";
+            break;
+        case ACTIVE_STAGE:
+            __fout << "STAGE: ACTIVE; ";
+            break;
+        case RESULTS_STAGE:
+            __fout << "STAGE: RESULTS; ";
+            break;
+        }
+        __fout << "TIME: " << __time->toStdString() << "; ";
+
+        __fout << " MESSAGE: " <<log.toStdString() <<"; "<< endl;
+
+        __fout.close();
+    }
 }
 
 void ServerRenderer::__setFGColor(TERMINAL_COLOR color){
